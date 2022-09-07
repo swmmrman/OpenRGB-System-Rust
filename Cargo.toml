@@ -1,5 +1,5 @@
 [package]
-name = "OpenRGB-System-Rust"
+name = "openrgb-system-rust"
 version = "0.1.0"
 edition = "2021"
 
