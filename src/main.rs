@@ -22,6 +22,13 @@ fn get_cpu_file() -> Result<String, io::Error> {
     Ok(cpufile)
 }
 
+fn get_cpu_temp(path: &str) -> f32 {
+    let temp: String = fs::read_to_string(path)
+        .expect(&format!("File not found {}", path));
+    let temp = temp.trim().parse::<f32>().unwrap();
+    temp / 1000.0
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = OpenRGB::connect().await?;
@@ -30,8 +37,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //Lets store the current config to restore later.
     let orig_colors = keyboard.colors;
     let _orig_mode = keyboard.active_mode;
+    let cpu_file = get_cpu_file().unwrap();
 
-    println!("{}", get_cpu_file().unwrap());
+    println!("{}", get_cpu_temp(&cpu_file));
 
     thread::sleep(time::Duration::from_secs(1));
     //client.update_mode(0,2);
