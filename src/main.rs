@@ -6,7 +6,7 @@ use openrgb::{
 use std::{thread, time, fs};
 //use std::fs::File;
 use std::error::Error;
-use std::io;
+use std::io::{self, Write};
 use tokio;
 
 fn get_cpu_file() -> Result<String, io::Error> {
@@ -31,6 +31,7 @@ fn get_cpu_temp(path: &str) -> f32 {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let running = true;
     let client = OpenRGB::connect().await?;
     client.set_name("OpenRGB System Rust").await?;
     let keyboard = client.get_controller(0).await?;
@@ -38,9 +39,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let orig_colors = keyboard.colors;
     let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
-
-    println!("{}", get_cpu_temp(&cpu_file));
-
+    while running {
+        print!("\rCPU Temp: {}", get_cpu_temp(&cpu_file));
+        io::stdout().flush().unwrap();
+        thread::sleep(time::Duration::from_millis(250));
+    }
     thread::sleep(time::Duration::from_secs(1));
     //client.update_mode(0,2);
     client.update_leds(0, orig_colors).await?;
