@@ -29,6 +29,12 @@ fn get_cpu_temp(path: &str) -> f32 {
     temp / 1000.0
 }
 
+fn get_key_indexs(keys: Vec<&str>) -> Vec<i64> {
+    let indexs = Vec::new();
+    
+    indexs
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let running = true;
@@ -39,6 +45,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let orig_colors = keyboard.colors;
     let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
+    let keys = vec!("A", "B");
+    let _indexs = get_key_indexs(keys);
     while running {
         print!("\rCPU Temp: {}", get_cpu_temp(&cpu_file));
         io::stdout().flush().unwrap();
