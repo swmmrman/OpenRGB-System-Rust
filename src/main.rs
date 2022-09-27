@@ -66,6 +66,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     );
     let indexs = get_key_indexs(keys, &keyboard.leds);
     println!("{:?}", indexs);
+    let mut bg = Vec::new();
+    for _ in  0..colors.len() {
+        bg.push(Color::new(128,64,0));
+    }
+    colors = bg;
     for index in indexs {
         colors[index] = Color::new(255,0,0);
     }
