@@ -56,7 +56,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     client.set_name("OpenRGB System Rust").await?;
     let keyboard = client.get_controller(0).await?;
     //Lets store the current config to restore later.
-    let orig_colors = keyboard.colors;
+    let orig_colors = keyboard.colors.to_vec();
+    let mut colors = keyboard.colors.to_vec();
     let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
     let keys = vec!(
@@ -65,6 +66,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     );
     let indexs = get_key_indexs(keys, &keyboard.leds);
     println!("{:?}", indexs);
+    for index in indexs {
+        colors[index] = Color::new(255,0,0);
+    }
+    client.update_leds(0, colors).await?;
     while running {
         print!("\rCPU Temp: {}", get_cpu_temp(&cpu_file));
         io::stdout().flush().unwrap();
