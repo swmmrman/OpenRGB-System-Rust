@@ -30,9 +30,19 @@ fn get_cpu_temp(path: &str) -> f32 {
     temp / 1000.0
 }
 
-fn get_key_indexs(keys: Vec<&str>, led: &Vec<LED>) -> Vec<i64> {
+fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<i64> {
     let indexs = Vec::new();
-    
+    let mut led_names = Vec::new();
+    for led in leds {
+        let led_name = led.name.to_string();
+        if led_name == "Logo" {
+            led_names.push(led_name);
+        }
+        else {
+            led_names.push(led_name[5..].to_string());
+        }
+    }
+    println!("{:#?}", led_names);
     indexs
 }
 
@@ -46,7 +56,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let orig_colors = keyboard.colors;
     let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
-    let keys = vec!("A", "B");
+    let keys = vec!("A", "B", "Logo");
     let _indexs = get_key_indexs(keys, &keyboard.leds);
     while running {
         print!("\rCPU Temp: {}", get_cpu_temp(&cpu_file));
