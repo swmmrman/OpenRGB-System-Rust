@@ -30,6 +30,15 @@ fn get_cpu_temp(path: &str) -> f32 {
     temp / 1000.0
 }
 
+fn get_color(val: f32) -> Color {
+    let val = val * 2.0;
+    println!("{}", val);
+    let r = std::cmp::max(std::cmp::min((val * 255.0) as u8, 255), 0);
+    let g = std::cmp::max(std::cmp::min((510.0 - val * 255.0) as u8, 255), 0);
+    let b = 0;
+    Color::new(r,g,b)
+}
+
 fn get_key_indexs(keys: Vec<char>, leds: &Vec<LED>) -> Vec<usize> {
     let mut indexs = Vec::new();
     let mut led_names = Vec::new();
@@ -72,7 +81,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
     colors = bg;
     for index in indexs {
-        colors[index] = Color::new(255,0,0);
+        colors[index] = get_color(0.10);
     }
     client.update_leds(0, colors).await?;
     while running {
