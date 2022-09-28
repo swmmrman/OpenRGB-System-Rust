@@ -1,4 +1,4 @@
-//use sysinfo::{System, SystemExt};
+use sysinfo::{System, SystemExt, CpuExt};
 use openrgb::{
     data::Color,
     data::LED,
@@ -32,14 +32,13 @@ fn get_cpu_temp(path: &str) -> f32 {
 
 fn get_color(val: f32) -> Color {
     let val = val * 2.0;
-    println!("{}", val);
     let r = std::cmp::max(std::cmp::min((val * 255.0) as u8, 255), 0);
     let g = std::cmp::max(std::cmp::min((510.0 - val * 255.0) as u8, 255), 0);
     let b = 0;
     Color::new(r,g,b)
 }
 
-fn get_key_indexs(keys: Vec<char>, leds: &Vec<LED>) -> Vec<usize> {
+fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
     let mut indexs = Vec::new();
     let mut led_names = Vec::new();
     for led in leds {
@@ -67,11 +66,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //Lets store the current config to restore later.
     let orig_colors = keyboard.colors.to_vec();
     let mut colors = keyboard.colors.to_vec();
+    //let logo = colors[get_key_indexs(vec!("Logo"), &keyboard.leds)[0]];
     let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
     let keys = vec!(
-        'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',
-        'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'
+        "A", "S", "D", "F", "G", "H", "J", "K", "L", ";",
+        "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "Logo"
     );
     let indexs = get_key_indexs(keys, &keyboard.leds);
     println!("{:?}", indexs);
@@ -80,13 +80,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
         bg.push(Color::new(128,64,0));
     }
     colors = bg;
-    for index in indexs {
-        colors[index] = get_color(0.10);
-    }
-    client.update_leds(0, colors).await?;
+    client.update_leds(0, colors.to_vec()).await?;
+    
+    let mut sys = System::new_all();
     while running {
-        print!("\rCPU Temp: {}", get_cpu_temp(&cpu_file));
+        sys.refresh_all();
+        let mut i = 0;
+        for core in sys.cpus() {
+            colors[indexs[i]] = get_color(core.cpu_usage() / 100.0);
+            i = i + 1; 
+        }
+        colors[indexs[20]] = get_color(((get_cpu_temp(&cpu_file) - 30.0)*1.4) / 100.0);
         io::stdout().flush().unwrap();
+        client.update_leds(0, colors.to_vec()).await?;
         thread::sleep(time::Duration::from_millis(250));
     }
     thread::sleep(time::Duration::from_secs(1));
