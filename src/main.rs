@@ -8,7 +8,10 @@ use std::{thread, time, fs};
 //use std::fs::File;
 use std::error::Error;
 use std::io::{self, Write};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use tokio;
+
 
 fn get_cpu_file() -> Result<String, io::Error> {
     let mut cpufile = String::new();
@@ -59,8 +62,12 @@ fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    thread::sleep(time::Duration::from_secs(5));
-    let running = true;
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+    }).expect("Error setting handler");
+    thread::sleep(time::Duration::from_secs(1));
     let client = OpenRGB::connect().await?;
     client.set_name("OpenRGB System Rust").await?;
     let keyboard = client.get_controller(0).await?;
@@ -83,7 +90,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     client.update_leds(0, colors.to_vec()).await?;
     
     let mut sys = System::new_all();
-    while running {
+    while running.load(Ordering::SeqCst) {
         sys.refresh_all();
         let mut i = 0;
         for core in sys.cpus() {

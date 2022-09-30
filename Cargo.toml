@@ -9,3 +9,4 @@ edition = "2021"
 openrgb = "0.1.2"
 tokio = { version = "1", features = ["full"]}
 sysinfo = "0.26.2"
+ctrlc = { version  =  "3.2", features = ["termination"] }
