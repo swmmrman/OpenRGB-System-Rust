@@ -59,6 +59,7 @@ fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    thread::sleep(time::Duration::from_secs(5));
     let running = true;
     let client = OpenRGB::connect().await?;
     client.set_name("OpenRGB System Rust").await?;
@@ -70,11 +71,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
     let keys = vec!(
-        "A", "S", "D", "F", "G", "H", "J", "K", "L", ";",
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
         "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "Logo"
     );
     let indexs = get_key_indexs(keys, &keyboard.leds);
-    println!("{:?}", indexs);
     let mut bg = Vec::new();
     for _ in  0..colors.len() {
         bg.push(Color::new(128,64,0));
@@ -93,9 +93,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         colors[indexs[20]] = get_color(((get_cpu_temp(&cpu_file) - 30.0)*1.4) / 100.0);
         io::stdout().flush().unwrap();
         client.update_leds(0, colors.to_vec()).await?;
-        thread::sleep(time::Duration::from_millis(250));
+        thread::sleep(time::Duration::from_millis(100));
     }
-    thread::sleep(time::Duration::from_secs(1));
+    thread::sleep(time::Duration::from_millis(16));
     //client.update_mode(0,2);
     client.update_leds(0, orig_colors).await?;
     Ok(())
