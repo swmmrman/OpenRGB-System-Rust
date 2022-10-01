@@ -60,8 +60,8 @@ fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
     }
     indexs
 }
-fn get_fans() -> Vec<u64> {
-    let mut fans: Vec<u64>= Vec::new();
+fn get_fans() -> Vec<f32> {
+    let mut fans: Vec<f32>= Vec::new();
     let sensor_packs = fs::read_dir("/sys/class/hwmon/").unwrap();
     for sensor in sensor_packs {
         let sensor_name_file = format!("{}/name", &sensor.as_ref().unwrap().path().display()); 
@@ -70,7 +70,7 @@ fn get_fans() -> Vec<u64> {
             for i in 1..=8 {
                 let fan_path = format!("{}/fan{}_input", &sensor.as_ref().unwrap().path().display(), i);
                 let fanspeed = fs::read_to_string(fan_path).unwrap();
-                fans.push(fanspeed.trim().parse::<u64>().unwrap());
+                fans.push(fanspeed.trim().parse::<f32>().unwrap());
             }
             break;
         }
@@ -113,8 +113,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut sys = System::new_all();
     while running.load(Ordering::SeqCst) {
         print!("\r");
+        //fans start at keys[21]
         for (i, fan) in get_fans().iter().enumerate() {
-            print!("Fan {}: {} ", i, fan)
+            let max_speeds = vec!(2250.0, 4800.0, 2000.0, 2250.0, 2250.0, 2200.0, 2200.0, 2200.0);
+            let fan_led = indexs[i + 21];
+            let fan_percent: f32 = fan / max_speeds[i];
+            colors[fan_led] = get_color(fan_percent);
         }
         io::stdout().flush()?;
         sys.refresh_all();
