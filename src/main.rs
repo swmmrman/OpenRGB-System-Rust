@@ -5,7 +5,8 @@ use openrgb::{
     OpenRGB,
 };
 use std::{thread, time, fs};
-//use std::fs::File;
+use std::fs::File;
+use std::path::Path;
 use std::error::Error;
 use std::io::{self, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
