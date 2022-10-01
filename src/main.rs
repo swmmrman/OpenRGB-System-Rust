@@ -99,7 +99,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let cpu_file = get_cpu_file().unwrap();
     let keys = vec!(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-        "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "Logo"
+        "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", 
+        "Logo", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"
     );
     let indexs = get_key_indexs(keys, &keyboard.leds);
     let mut bg = Vec::new();
@@ -111,10 +112,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let mut sys = System::new_all();
     while running.load(Ordering::SeqCst) {
-        for fan in get_fans() {
-            print!("Speed: {}", fan)
+        print!("\r");
+        for (i, fan) in get_fans().iter().enumerate() {
+            print!("Fan {}: {} ", i, fan)
         }
-        println!("");
+        io::stdout().flush()?;
         sys.refresh_all();
         let mut i = 0;
         for core in sys.cpus() {
