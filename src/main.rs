@@ -5,8 +5,8 @@ use openrgb::{
     OpenRGB,
 };
 use std::{thread, time, fs};
-use std::fs::File;
-use std::path::Path;
+// use std::fs::File;
+// use std::path::Path;
 use std::error::Error;
 use std::io::{self, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -59,6 +59,24 @@ fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
         indexs.push(index);
     }
     indexs
+}
+fn get_fans() -> Vec<u64> {
+    let mut fans: Vec<u64>= Vec::new();
+    let sensor_packs = fs::read_dir("/sys/class/hwmon/").unwrap();
+    for sensor in sensor_packs {
+        let sensor_name_file = format!("{}/name", &sensor.as_ref().unwrap().path().display()); 
+        let sensor_name = fs::read_to_string(sensor_name_file).expect("File not found");
+        println!("{}", sensor_name);
+        if sensor_name == "nct6687\n" {
+            for i in 1..=8 {
+                let fan_path = format!("{}/fan{}_input", &sensor.as_ref().unwrap().path().display(), i);
+                let fanspeed = fs::read_to_string(fan_path).unwrap();
+                fans.push(fanspeed.trim().parse::<u64>().unwrap());
+            }
+            break;
+        }
+    }
+    fans
 }
 
 #[tokio::main]
