@@ -66,7 +66,6 @@ fn get_fans() -> Vec<u64> {
     for sensor in sensor_packs {
         let sensor_name_file = format!("{}/name", &sensor.as_ref().unwrap().path().display()); 
         let sensor_name = fs::read_to_string(sensor_name_file).expect("File not found");
-        println!("{}", sensor_name);
         if sensor_name == "nct6687\n" {
             for i in 1..=8 {
                 let fan_path = format!("{}/fan{}_input", &sensor.as_ref().unwrap().path().display(), i);
