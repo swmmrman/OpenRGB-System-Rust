@@ -35,6 +35,9 @@ fn get_cpu_temp(path: &str) -> f32 {
 }
 
 fn get_color(val: f32) -> Color {
+    if val < 0.01{ 
+        return Color::new(0,0,0);
+    }
     let val = val * 2.0;
     let r = std::cmp::max(std::cmp::min((val * 255.0) as u8, 255), 0);
     let g = std::cmp::max(std::cmp::min((510.0 - val * 255.0) as u8, 255), 0);
