@@ -71,11 +71,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = OpenRGB::connect().await?;
     client.set_name("OpenRGB System Rust").await?;
     let keyboard = client.get_controller(0).await?;
+    let chroma = client.get_controller(1).await?;
+    let mut syscolors = chroma.colors.to_vec();
+    for i in 0..syscolors.len() {
+        syscolors[i] = Color::new(0,0,0);
+    }
+    client.update_leds(1, syscolors.to_vec()).await?;
     //Lets store the current config to restore later.
     let orig_colors = keyboard.colors.to_vec();
     let mut colors = keyboard.colors.to_vec();
     //let logo = colors[get_key_indexs(vec!("Logo"), &keyboard.leds)[0]];
-    let _orig_mode = keyboard.active_mode;
     let cpu_file = get_cpu_file().unwrap();
     let keys = vec!(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
@@ -102,8 +107,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         client.update_leds(0, colors.to_vec()).await?;
         thread::sleep(time::Duration::from_millis(100));
     }
-    thread::sleep(time::Duration::from_millis(16));
-    //client.update_mode(0,2);
-    client.update_leds(0, orig_colors).await?;
+    thread::sleep(time::Duration::from_millis(100));
+    let exit_color = Color::new(63, 0, 0);
+    for c in 0..client.get_controller_count().await? {
+        let mut exit_colors = Vec::new();
+        for _ in 0..client.get_controller(c).await?.colors.len() {
+            exit_colors.push(exit_color);
+        }
+        client.update_leds(c, exit_colors).await?;
+    }
     Ok(())
 }
