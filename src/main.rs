@@ -77,10 +77,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         syscolors[i] = Color::new(0,0,0);
     }
     client.update_leds(1, syscolors.to_vec()).await?;
-    //Lets store the current config to restore later.
-    let orig_colors = keyboard.colors.to_vec();
     let mut colors = keyboard.colors.to_vec();
-    //let logo = colors[get_key_indexs(vec!("Logo"), &keyboard.leds)[0]];
     let cpu_file = get_cpu_file().unwrap();
     let keys = vec!(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
