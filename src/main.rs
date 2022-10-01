@@ -112,6 +112,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let mut sys = System::new_all();
     while running.load(Ordering::SeqCst) {
+        for fan in get_fans() {
+            print!("Speed: {}", fan)
+        }
+        println!("");
         sys.refresh_all();
         let mut i = 0;
         for core in sys.cpus() {
