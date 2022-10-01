@@ -130,7 +130,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             colors[indexs[i]] = get_color(core.cpu_usage() / 100.0);
             i = i + 1; 
         }
-        colors[indexs[20]] = get_color(((get_cpu_temp(&cpu_file) - 30.0)*1.4) / 100.0);
+        colors[indexs[20]] = get_color(((get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
         io::stdout().flush().unwrap();
         client.update_leds(0, colors.to_vec()).await?;
         thread::sleep(time::Duration::from_millis(100));
