@@ -108,7 +108,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let indexs = get_key_indexs(keys, &keyboard.leds);
     let mut bg = Vec::new();
     for _ in  0..colors.len() {
-        bg.push(Color::new(128,64,0));
+        bg.push(Color::new(63,31,0));
     }
     colors = bg;
     client.update_leds(0, colors.to_vec()).await?;
