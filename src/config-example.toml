@@ -1,0 +1,10 @@
+[[sensors]]
+name = "cpu_fan"
+type = "fan"
+file = "fan_input1"
+range = [1000,2200]
+led = ["controller", zone]
+#led = ["contoller", "key"]
+
+
+[[leds]]
