@@ -8,3 +8,9 @@ led = ["controller", zone]
 
 
 [[leds]]
+name = "Logitech"
+type = "Keyboard"
+
+[[leds]]
+name =  "Chroma"
+zones = [7,7,7,10,11,34]
