@@ -4,6 +4,7 @@ type = "fan"
 file = "fan_input1"
 range = [1000,2200]
 led = ["controller", "zone"]
+#led = ["Chroma", "1"]
 #led = ["contoller", "key"]
 
 
