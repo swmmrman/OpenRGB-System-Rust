@@ -1,10 +1,8 @@
 use sysinfo::{System, SystemExt, CpuExt};
 use openrgb::{
     data::Color,
-    data::LED,
-    OpenRGB,
 };
-use std::{thread, time, fs};
+use std::{thread, time};
 // use std::fs::File;
 // use std::path::Path;
 use std::error::Error;
@@ -15,53 +13,6 @@ use tokio;
 use std::collections::VecDeque;
 use openrgb_system_rust;
 
-fn get_color(val: f32) -> Color {
-    if val < 0.01{ 
-        return Color::new(0,0,0);
-    }
-    let val = val * 2.0;
-    let r = std::cmp::max(std::cmp::min((val * 255.0) as u8, 255), 0);
-    let g = std::cmp::max(std::cmp::min((510.0 - val * 255.0) as u8, 255), 0);
-    let b = 0;
-    Color::new(r,g,b)
-}
-
-fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
-    let mut indexs = Vec::new();
-    let mut led_names = Vec::new();
-    for led in leds {
-        let led_name = led.name.to_string();
-        if led_name == "Logo" {
-            led_names.push(led_name);
-        }
-        else {
-            led_names.push(led_name[5..].to_string());
-        }
-    }
-    for key in keys {
-        let index = led_names.iter().position(|x| x == &key.to_string()).unwrap();
-        indexs.push(index);
-    }
-    indexs
-}
-fn get_fans() -> Vec<f32> {
-    let mut fans: Vec<f32>= Vec::new();
-    let sensor_packs = fs::read_dir("/sys/class/hwmon/").unwrap();
-    for sensor in sensor_packs {
-        let sensor_name_file = format!("{}/name", &sensor.as_ref().unwrap().path().display()); 
-        let sensor_name = fs::read_to_string(sensor_name_file).expect("File not found");
-        if sensor_name == "nct6687\n" {
-            for i in 1..=8 {
-                let fan_path = format!("{}/fan{}_input", &sensor.as_ref().unwrap().path().display(), i);
-                let fanspeed = fs::read_to_string(fan_path).unwrap();
-                fans.push(fanspeed.trim().parse::<f32>().unwrap());
-            }
-            break;
-        }
-    }
-    fans
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let running = Arc::new(AtomicBool::new(true));
@@ -70,7 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         r.store(false, Ordering::SeqCst);
     }).expect("Error setting handler");
     thread::sleep(time::Duration::from_secs(1));
-    let client = OpenRGB::connect().await?;
+    let client = openrgb::OpenRGB::connect().await?;
     client.set_name("OpenRGB System Rust").await?;
     let keyboard = client.get_controller(0).await?;
     //let chroma = client.get_controller(1).await?;
@@ -87,7 +38,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "Logo",
         "F1", "F4", "F5", "F2", "F3", "F6", "F7", "F8"
     );
-    let indexs = get_key_indexs(keys, &keyboard.leds);
+    let indexs = openrgb_system_rust::get_key_indexs(keys, &keyboard.leds);
     let mut bg = Vec::new();
     for _ in  0..colors.len() {
         bg.push(Color::new(63,31,0));
@@ -100,23 +51,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
     while running.load(Ordering::SeqCst) {
         print!("\r");
         //fans start at keys[21]
-        for (i, fan) in get_fans().iter().enumerate() {
+        for (i, fan) in openrgb_system_rust::get_fans().iter().enumerate() {
             let max_speeds = vec!(2250.0, 4800.0, 2000.0, 2250.0, 2250.0, 2200.0, 2200.0, 2200.0);
             let fan_led = indexs[i + 21];
             let fan_percent: f32 = fan / max_speeds[i];
-            colors[fan_led] = get_color(fan_percent);
+            colors[fan_led] = openrgb_system_rust::get_color(fan_percent);
         }
         io::stdout().flush()?;
         sys.refresh_all();
         let mut i = 0;
         for core in sys.cpus() {
-            colors[indexs[i]] = get_color(core.cpu_usage() / 100.0);
+            colors[indexs[i]] = openrgb_system_rust::get_color(core.cpu_usage() / 100.0);
             i = i + 1; 
         }
         cpu_vals.pop_front();
         cpu_vals.push_back(((openrgb_system_rust::get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
         let cpu_avg = cpu_vals.iter().sum::<f32>() / 10.0;
-        colors[indexs[20]] = get_color(cpu_avg);
+        colors[indexs[20]] = openrgb_system_rust::get_color(cpu_avg);
         io::stdout().flush().unwrap();
         client.update_leds(0, colors.to_vec()).await?;
         thread::sleep(time::Duration::from_millis(100));
