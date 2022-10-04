@@ -13,19 +13,20 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio;
 use std::collections::VecDeque;
+use openrgb_system_rust;
 
-fn get_cpu_file() -> Result<String, io::Error> {
-    let mut cpufile = String::new();
-    let zones = fs::read_dir("/sys/class/thermal/")?;
-    for zone in zones {
-        let type_path = format!("{}/type", &zone.as_ref().unwrap().path().display());
-        let sensor_type = fs::read_to_string(type_path).expect("Error");
-        if sensor_type == "x86_pkg_temp\n" {
-            cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
-        }
-    }
-    Ok(cpufile)
-}
+// fn get_cpu_file() -> Result<String, io::Error> {
+//     let mut cpufile = String::new();
+//     let zones = fs::read_dir("/sys/class/thermal/")?;
+//     for zone in zones {
+//         let type_path = format!("{}/type", &zone.as_ref().unwrap().path().display());
+//         let sensor_type = fs::read_to_string(type_path).expect("Error");
+//         if sensor_type == "x86_pkg_temp\n" {
+//             cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
+//         }
+//     }
+//     Ok(cpufile)
+// }
 
 fn get_cpu_temp(path: &str) -> f32 {
     let temp: String = fs::read_to_string(path)
@@ -99,7 +100,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // }
     //client.update_leds(1, syscolors.to_vec()).await?;
     let mut colors = keyboard.colors.to_vec();
-    let cpu_file = get_cpu_file().unwrap();
+    let cpu_file = openrgb_system_rust::get_cpu_file().unwrap();
     let keys = vec!(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
         "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", 
