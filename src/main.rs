@@ -103,7 +103,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let keys = vec!(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
         "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", 
-        "Logo", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"
+        "Logo",
+        "F1", "F4", "F5", "F2", "F3", "F6", "F7", "F8"
     );
     let indexs = get_key_indexs(keys, &keyboard.leds);
     let mut bg = Vec::new();
