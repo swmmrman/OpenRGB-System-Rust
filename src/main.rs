@@ -15,26 +15,6 @@ use tokio;
 use std::collections::VecDeque;
 use openrgb_system_rust;
 
-// fn get_cpu_file() -> Result<String, io::Error> {
-//     let mut cpufile = String::new();
-//     let zones = fs::read_dir("/sys/class/thermal/")?;
-//     for zone in zones {
-//         let type_path = format!("{}/type", &zone.as_ref().unwrap().path().display());
-//         let sensor_type = fs::read_to_string(type_path).expect("Error");
-//         if sensor_type == "x86_pkg_temp\n" {
-//             cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
-//         }
-//     }
-//     Ok(cpufile)
-// }
-
-fn get_cpu_temp(path: &str) -> f32 {
-    let temp: String = fs::read_to_string(path)
-        .expect(&format!("File not found {}", path));
-    let temp = temp.trim().parse::<f32>().unwrap();
-    temp / 1000.0
-}
-
 fn get_color(val: f32) -> Color {
     if val < 0.01{ 
         return Color::new(0,0,0);
@@ -134,7 +114,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             i = i + 1; 
         }
         cpu_vals.pop_front();
-        cpu_vals.push_back(((get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
+        cpu_vals.push_back(((openrgb_system_rust::get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
         let cpu_avg = cpu_vals.iter().sum::<f32>() / 10.0;
         colors[indexs[20]] = get_color(cpu_avg);
         io::stdout().flush().unwrap();

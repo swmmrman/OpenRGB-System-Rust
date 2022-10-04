@@ -13,3 +13,10 @@ pub fn get_cpu_file() -> Result<String, io::Error> {
     }
     Ok(cpufile)
 }
+
+pub fn get_cpu_temp(path: &str) -> f32 {
+    let temp: String = fs::read_to_string(path)
+        .expect(&format!("File not found {}", path));
+    let temp = temp.trim().parse::<f32>().unwrap();
+    temp / 1000.0
+}
