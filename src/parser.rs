@@ -3,6 +3,8 @@ use openrgb::{
     OpenRGB,
 };
 
+use home;
+use std::path::PathBuf;
 use std::process::exit;
 use std::error::Error;
 use std::{fs,thread};
@@ -22,12 +24,17 @@ async fn change_sys_color(color: Color) -> Result<(), Box<dyn Error>> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    change_sys_color(Color::new(255,255,255)).await?;
-    let path = match std::fs::metadata("~/.config/openrgb-monintor-rust/config.toml") {
-        Ok(_) => "~/.config/openrgb-monintor-rust/config.toml",
-        Err(_) => "config.toml",
+    let home = match home::home_dir() {
+        Some(h) => h,
+        None => PathBuf::from("/"),
     };
-    
+    change_sys_color(Color::new(255,255,255)).await?;
+    let hf = format!("{}/.config/openrgb-monitor-rust/config.toml", home.display());
+
+    let path = match std::fs::metadata(hf.to_string()).is_ok() {
+        true => hf.to_string(),
+        false => "config.toml".to_string(),
+    };
     let contents = match fs::read_to_string(path) {
         Ok(c) => c,
         Err(e) => {
