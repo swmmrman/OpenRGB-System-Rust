@@ -3,6 +3,7 @@ use openrgb::{
     OpenRGB,
 };
 
+use std::process::exit;
 use std::error::Error;
 use std::{fs,thread};
 use std::time::Duration;
@@ -23,8 +24,14 @@ async fn change_sys_color(color: Color) -> Result<(), Box<dyn Error>> {
 async fn main() -> Result<(), Box<dyn Error>> {
     change_sys_color(Color::new(255,255,255)).await?;
     
-    let fh = fs::read_to_string("config.toml");
-    println!("Config = {:#?}", fh);
+    let contents = match fs::read_to_string("config.toml") {
+        Ok(c) => c,
+        Err(_) => {
+            println!("Config file not found");
+            exit(1);
+        }
+    };
+    println!("Config = {:#?}", contents);
 
 
     thread::sleep(Duration::from_secs(5));
