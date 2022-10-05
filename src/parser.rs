@@ -23,11 +23,15 @@ async fn change_sys_color(color: Color) -> Result<(), Box<dyn Error>> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     change_sys_color(Color::new(255,255,255)).await?;
+    let path = match std::fs::metadata("~/.config/openrgb-monintor-rust/config.toml") {
+        Ok(_) => "~/.config/openrgb-monintor-rust/config.toml",
+        Err(_) => "config.toml",
+    };
     
-    let contents = match fs::read_to_string("config.toml") {
+    let contents = match fs::read_to_string(path) {
         Ok(c) => c,
-        Err(_) => {
-            println!("Config file not found");
+        Err(e) => {
+            println!("Error reading config: {}", e);
             exit(1);
         }
     };
