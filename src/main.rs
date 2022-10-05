@@ -1,6 +1,7 @@
 use sysinfo::{System, SystemExt, CpuExt};
 use openrgb::{
     data::Color,
+    OpenRGB,
 };
 use std::{thread, time};
 // use std::fs::File;
@@ -21,15 +22,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         r.store(false, Ordering::SeqCst);
     }).expect("Error setting handler");
     thread::sleep(time::Duration::from_secs(1));
-    let client = openrgb::OpenRGB::connect().await?;
+    let client = OpenRGB::connect().await?;
     client.set_name("OpenRGB System Rust").await?;
     let keyboard = client.get_controller(0).await?;
-    //let chroma = client.get_controller(1).await?;
-    // let mut syscolors = chroma.colors.to_vec();
-    // for i in 0..syscolors.len() {
-    //     syscolors[i] = Color::new(0,0,0);
-    // }
-    //client.update_leds(1, syscolors.to_vec()).await?;
     let mut colors = keyboard.colors.to_vec();
     let cpu_file = openrgb_system_rust::get_cpu_file().unwrap();
     let keys = vec!(
