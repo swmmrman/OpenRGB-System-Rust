@@ -1,18 +1,25 @@
-[[sensors]]
+[sensors]
+[sensors.1]
 name = "cpu_fan"
 type = "fan"
-file = "fan_input1"
+file = "fan1_input"
 range = [1000,2200]
-led = ["controller", "zone"]
-#led = ["Chroma", "1"]
-#led = ["contoller", "key"]
+leds = ["kb", "1"] # 1 key on keyboard
 
+[sensors.2]
+name = "cpu_pump"
+type = "fan"
+file = "fan2_input"
+range = [1000,2200]
+leds = ["chroma", "1"] # First zone of the Chorma
 
-[[leds]]
+[leds.kb]
 name = "Logitech"
 type = "Keyboard"
+zones = [1] # for keyboards leave this as 1.
 
-[[leds]]
+
+[leds.chroma]
 name =  "Chroma"
 type = "Linear"
 zones = [7,7,7,10,11,34]
