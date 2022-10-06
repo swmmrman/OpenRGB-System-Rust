@@ -67,32 +67,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             exit(1);
         }
     };
-    let test = 
-    "
-[sensors]
-[sensors.pump]
-name = \"cpu_pump\"
-sensor_type = \"fan\"
-file = \"fan3_input\"
-range = [1000,2200]
-leds = [[\"0\", \"F2\"],[\"1\", \"6\"]]
-
-[sensors.rfan]
-name = \"rear fan\"
-sensor_type = \"fan\"
-file = \"fan4_input\"
-range = [1000,2200]
-led = [\"0\",\"F3\"]
-
-[leds]
-[leds.chroma]
-name = \"Razer Chroma\"
-id = 1
-led_type = \"Linear\"
-zones = [17,17,17,12,13,11]
-";
-
-    let config: Config = match toml::from_str::<Config>(test) {
+    let config: Config = match toml::from_str::<Config>(&contents) {
         Ok(conf) => conf,
         Err(e) => {
             println!("{}", e);
