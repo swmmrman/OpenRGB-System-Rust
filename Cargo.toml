@@ -11,6 +11,9 @@ tokio = { version = "1", features = ["full"]}
 sysinfo = "0.26.2"
 ctrlc = { version  =  "3.2", features = ["termination"] }
 home = "0.5.3"
+toml = "0.5.9"
+serde_derive = "1.0.145"
+serde = "1.0.0"
 
 [[bin]]
 name = "first_test"
