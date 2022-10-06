@@ -3,13 +3,38 @@ use openrgb::{
     OpenRGB,
 };
 
+use serde_derive::Deserialize;
 use home;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process::exit;
 use std::error::Error;
 use std::{fs,thread};
 use std::time::Duration;
 use tokio;
+use toml;
+
+#[derive(Deserialize, Debug)]
+struct Config {
+    sensors: HashMap<String, Sensor>,
+    leds: HashMap<String, Led>
+}
+#[derive(Deserialize, Debug)]
+struct Sensor {
+    name: String,
+    sensor_type: String,
+    file: String,
+    range: Vec<u32>,
+
+}
+
+#[derive(Deserialize, Debug)]
+struct Led {
+    name: String,
+    id: usize,
+    led_type: String,
+    zones: Vec<usize>,
+}
 
 async fn change_sys_color(color: Color) -> Result<(), Box<dyn Error>> {
     let client = OpenRGB::connect().await?;
@@ -42,7 +67,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
             exit(1);
         }
     };
-    println!("Config = {:#?}", contents);
+    let test = 
+    "
+[sensors]
+[sensors.pump]
+name = \"cpu_pump\"
+sensor_type = \"fan\"
+file = \"fan3_input\"
+range = [1000,2200]
+leds = [[\"0\", \"F2\"],[\"1\", \"6\"]]
+
+[sensors.rfan]
+name = \"rear fan\"
+sensor_type = \"fan\"
+file = \"fan4_input\"
+range = [1000,2200]
+led = [\"0\",\"F3\"]
+
+[leds]
+[leds.chroma]
+name = \"Razer Chroma\"
+id = 1
+led_type = \"Linear\"
+zones = [17,17,17,12,13,11]
+";
+
+    let config: Config = match toml::from_str::<Config>(test) {
+        Ok(conf) => conf,
+        Err(e) => {
+            println!("{}", e);
+            exit(1);
+        }
+    };
+    println!("Config = {:#?}", config);
 
 
     thread::sleep(Duration::from_secs(5));
