@@ -7,7 +7,6 @@ use std::{thread, time};
 // use std::fs::File;
 // use std::path::Path;
 use std::error::Error;
-use std::io::{self, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio;
@@ -45,9 +44,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut sys = System::new_all();
     let mut cpu_vals: VecDeque<f32> = VecDeque::from([0.32; 10]);
     while running.load(Ordering::SeqCst) {
-        print!("\r");
         openrgb_system_rust::get_fan_colors(&mut colors, &indexs);
-        io::stdout().flush()?;
         sys.refresh_all();
         let mut i = 0;
         for core in sys.cpus() {
@@ -56,7 +53,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         let cpu_avg = get_cpu_avg(&mut cpu_vals, &cpu_file);
         colors[indexs[20]] = openrgb_system_rust::get_color(cpu_avg);
-        io::stdout().flush().unwrap();
         client.update_leds(target_controller, colors.to_vec()).await?;
         thread::sleep(time::Duration::from_millis(100));
     }
