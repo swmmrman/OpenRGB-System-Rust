@@ -4,8 +4,6 @@ use openrgb::{
     OpenRGB,
 };
 use std::{thread, time};
-// use std::fs::File;
-// use std::path::Path;
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
