@@ -74,13 +74,14 @@ pub fn get_fans() -> Vec<f32> {
     fans
 }
 
-pub fn get_fan_colors(colors: &mut Vec<rgb::RGB<u8>>, indexs: &Vec<usize>) {
+pub fn get_fan_colors(colors: &mut Vec<rgb::RGB<u8>>, indexs: &Vec<usize>) -> Vec<rgb::RGB<u8>> {
     for (i, fan) in get_fans().iter().enumerate() {
         let max_speeds = vec!(2250.0, 4800.0, 2000.0, 2250.0, 2250.0, 2200.0, 2200.0, 2200.0);
         let fan_led = indexs[i + 21];
         let fan_percent: f32 = fan / max_speeds[i];
         colors[fan_led] = get_color(fan_percent);
     }
+    colors.to_vec()
 }
 
 pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &str) -> f32{

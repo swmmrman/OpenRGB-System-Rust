@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut sys = System::new_all();
     let mut cpu_vals: VecDeque<f32> = VecDeque::from([0.32; 10]);
     while running.load(Ordering::SeqCst) {
-        openrgb_system_rust::get_fan_colors(&mut colors, &indexs);
+        colors = openrgb_system_rust::get_fan_colors(&mut colors, &indexs);
         sys.refresh_all();
         let mut i = 0;
         for core in sys.cpus() {
