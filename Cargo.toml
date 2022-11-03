@@ -14,6 +14,13 @@ home = "0.5.3"
 toml = "0.5.9"
 serde_derive = "1.0.145"
 serde = "1.0.0"
+rgb = "0.8.34"
+
+[profile.release]
+strip = true
+lto = true
+opt-level = "z"
+panic = "abort"
 
 [[bin]]
 name = "first_test"

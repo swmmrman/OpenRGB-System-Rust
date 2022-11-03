@@ -271,6 +271,7 @@ dependencies = [
  "ctrlc",
  "home",
  "openrgb",
+ "rgb",
  "serde",
  "serde_derive",
  "sysinfo",
