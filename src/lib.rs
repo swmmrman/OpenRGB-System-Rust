@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::fs;
 use std::io;
 use openrgb::{
@@ -80,4 +81,10 @@ pub fn get_fan_colors(colors: &mut Vec<rgb::RGB<u8>>, indexs: &Vec<usize>) {
         let fan_percent: f32 = fan / max_speeds[i];
         colors[fan_led] = get_color(fan_percent);
     }
+}
+
+pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &str) -> f32{
+    cpu_vals.pop_front();
+    cpu_vals.push_back(((get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
+    cpu_vals.iter().sum::<f32>() / 10.0
 }
