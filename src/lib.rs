@@ -4,6 +4,7 @@ use openrgb::{
     data::Color,
     data::LED,
 };
+use rgb;
 
 pub fn get_cpu_file() -> Result<String, io::Error> {
     let mut cpufile = String::new();
@@ -70,4 +71,13 @@ pub fn get_fans() -> Vec<f32> {
         }
     }
     fans
+}
+
+pub fn get_fan_colors(colors: &mut Vec<rgb::RGB<u8>>, indexs: &Vec<usize>) {
+    for (i, fan) in get_fans().iter().enumerate() {
+        let max_speeds = vec!(2250.0, 4800.0, 2000.0, 2250.0, 2250.0, 2200.0, 2200.0, 2200.0);
+        let fan_led = indexs[i + 21];
+        let fan_percent: f32 = fan / max_speeds[i];
+        colors[fan_led] = get_color(fan_percent);
+    }
 }

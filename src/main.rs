@@ -46,13 +46,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut cpu_vals: VecDeque<f32> = VecDeque::from([0.32; 10]);
     while running.load(Ordering::SeqCst) {
         print!("\r");
-        //fans start at keys[21]
-        for (i, fan) in openrgb_system_rust::get_fans().iter().enumerate() {
-            let max_speeds = vec!(2250.0, 4800.0, 2000.0, 2250.0, 2250.0, 2200.0, 2200.0, 2200.0);
-            let fan_led = indexs[i + 21];
-            let fan_percent: f32 = fan / max_speeds[i];
-            colors[fan_led] = openrgb_system_rust::get_color(fan_percent);
-        }
+        // //fans start at keys[21]
+        // for (i, fan) in openrgb_system_rust::get_fans().iter().enumerate() {
+        //     let max_speeds = vec!(2250.0, 4800.0, 2000.0, 2250.0, 2250.0, 2200.0, 2200.0, 2200.0);
+        //     let fan_led = indexs[i + 21];
+        //     let fan_percent: f32 = fan / max_speeds[i];
+        //     colors[fan_led] = openrgb_system_rust::get_color(fan_percent);
+        // }
+        openrgb_system_rust::get_fan_colors(&mut colors, &indexs);
         io::stdout().flush()?;
         sys.refresh_all();
         let mut i = 0;
@@ -79,3 +80,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
     Ok(())
 }
+ 
