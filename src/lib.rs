@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use std::fs;
 use std::io;
 use openrgb::{
@@ -6,6 +5,7 @@ use openrgb::{
     data::LED,
 };
 use rgb;
+use std::collections::VecDeque;
 
 pub fn get_cpu_file() -> Result<String, io::Error> {
     let mut cpufile = String::new();
@@ -88,4 +88,15 @@ pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &str) -> f32{
     cpu_vals.pop_front();
     cpu_vals.push_back(((get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
     cpu_vals.iter().sum::<f32>() / 10.0
+}
+
+#[cfg(test)]
+mod test {
+    use std::collections::VecDeque;
+    #[test]
+    fn test_cpu_avg(){
+        let mut vals: VecDeque<f32> =  [ 0.23, 0.25, 0.1, 0.2, 0.5, 0.10, 0.8, 0.2, 0.4, 0.8 ].into();
+        let targ = "cpu_fake_file";
+        assert_eq!(super::get_cpu_avg(&mut vals, targ), 0.36034003);
+    }
 }
