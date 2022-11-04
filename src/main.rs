@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio;
 use std::collections::VecDeque;
-use openrgb_system_rust::{self, get_cpu_avg};
+use openrgb_system_rust;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             colors[indexs[i]] = openrgb_system_rust::get_color(core.cpu_usage() / 100.0);
             i = i + 1; 
         }
-        let cpu_avg = get_cpu_avg(&mut cpu_vals, &cpu_file);
+        let cpu_avg = openrgb_system_rust::get_cpu_avg(&mut cpu_vals, &cpu_file);
         colors[indexs[20]] = openrgb_system_rust::get_color(cpu_avg);
         client.update_leds(target_controller, colors.to_vec()).await?;
         thread::sleep(time::Duration::from_millis(100));
