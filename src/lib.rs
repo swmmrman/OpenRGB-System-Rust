@@ -99,4 +99,9 @@ mod test {
         let targ = "cpu_fake_file";
         assert_eq!(super::get_cpu_avg(&mut vals, targ), 0.36034003);
     }
+    #[test]
+    fn test_cpu_temp() {
+        let targ: &str = "cpu_fake_file";
+        assert_eq!(super::get_cpu_temp(targ), 42.1);
+    }
 }
