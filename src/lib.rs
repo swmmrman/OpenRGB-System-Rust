@@ -92,7 +92,7 @@ pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &str) -> f32{
 
 #[cfg(test)]
 mod test {
-    use std::collections::VecDeque;
+    use std::{collections::VecDeque, path::Path};
     #[test]
     fn test_cpu_avg(){
         let mut vals: VecDeque<f32> =  [ 0.23, 0.25, 0.1, 0.2, 0.5, 0.10, 0.8, 0.2, 0.4, 0.8 ].into();
@@ -103,5 +103,12 @@ mod test {
     fn test_cpu_temp() {
         let targ: &str = "cpu_fake_file";
         assert_eq!(super::get_cpu_temp(targ), 42.1);
+    }
+    #[test]
+    fn test_cpu_file() {
+        let f = super::get_cpu_file().unwrap();
+        let p_f = Path::new(&f).parent().unwrap();
+        let t_f = p_f.join("type");
+        assert_eq!(std::fs::read_to_string(t_f).unwrap(), "x86_pkg_temp\n");
     }
 }
