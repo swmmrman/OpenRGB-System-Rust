@@ -11,10 +11,11 @@ pub fn get_cpu_file() -> Result<String, io::Error> {
     let mut cpufile = String::new();
     let zones = fs::read_dir("/sys/class/thermal/")?;
     for zone in zones {
-        let type_path = format!("{}/type", &zone.as_ref().unwrap().path().display());
+        let type_path = &zone.as_ref().unwrap().path().join("/type");
         let sensor_type = fs::read_to_string(type_path).expect("Error");
         if sensor_type == "x86_pkg_temp\n" {
-            cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
+            //cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
+            cpufile = type_path.join("temp").display().to_string();
         }
     }
     Ok(cpufile)
