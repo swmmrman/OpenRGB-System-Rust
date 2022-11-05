@@ -6,24 +6,25 @@ use openrgb::{
 };
 use rgb;
 use std::collections::VecDeque;
+use std::path::PathBuf;
 
-pub fn get_cpu_file() -> Result<String, io::Error> {
-    let mut cpufile = String::new();
+pub fn get_cpu_file() -> Result<PathBuf, io::Error> {
+    let mut cpufile = PathBuf::new();
     let zones = fs::read_dir("/sys/class/thermal/")?;
     for zone in zones {
         let type_path = &zone.as_ref().unwrap().path().join("type");
         let sensor_type = fs::read_to_string(type_path).expect("Error");
         if sensor_type == "x86_pkg_temp\n" {
             //cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
-            cpufile = type_path.display().to_string();
+            cpufile = zone.unwrap().path();
         }
     }
     Ok(cpufile)
 }
 
-pub fn get_cpu_temp(path: &str) -> f32 {
+pub fn get_cpu_temp(path: &PathBuf) -> f32 {
     let temp: String = fs::read_to_string(path)
-        .expect(&format!("File not found {}", path));
+        .expect(&format!("File not found {}", path.display()));
     let temp = temp.trim().parse::<f32>().unwrap();
     temp / 1000.0
 }
@@ -85,7 +86,7 @@ pub fn get_fan_colors(mut colors: Vec<rgb::RGB<u8>>, indexs: &Vec<usize>) -> Vec
     colors.to_vec()
 }
 
-pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &str) -> f32{
+pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &PathBuf) -> f32{
     cpu_vals.pop_front();
     cpu_vals.push_back(((get_cpu_temp(&cpu_file) - 24.0)*1.4) / 100.0);
     cpu_vals.iter().sum::<f32>() / 10.0
@@ -93,17 +94,17 @@ pub fn get_cpu_avg(cpu_vals: &mut VecDeque<f32>, cpu_file: &str) -> f32{
 
 #[cfg(test)]
 mod test {
-    use std::{collections::VecDeque, path::Path};
+    use std::{collections::VecDeque, path::{Path, PathBuf}};
     #[test]
     fn test_cpu_avg(){
         let mut vals: VecDeque<f32> =  [ 0.23, 0.25, 0.1, 0.2, 0.5, 0.10, 0.8, 0.2, 0.4, 0.8 ].into();
-        let targ = "cpu_fake_file";
-        assert_eq!(super::get_cpu_avg(&mut vals, targ), 0.36034003);
+        let targ = PathBuf::new().join("cpu_fake_file");
+        assert_eq!(super::get_cpu_avg(&mut vals, &targ), 0.36034003);
     }
     #[test]
     fn test_cpu_temp() {
-        let targ: &str = "cpu_fake_file";
-        assert_eq!(super::get_cpu_temp(targ), 42.1);
+        let targ = PathBuf::new().join("cpu_fake_file");
+        assert_eq!(super::get_cpu_temp(&targ), 42.1);
     }
     #[test]
     fn test_cpu_file() {
@@ -114,5 +115,8 @@ mod test {
         assert_eq!(m_f.display().to_string(), "/sys/class/thermal/thermal_zone1/mode");
         assert_eq!(std::fs::read_to_string(t_f).unwrap(), "x86_pkg_temp\n");
         assert_eq!(std::fs::read_to_string(m_f).unwrap(), "enabled\n");
+        let old_temp = std::fs::read_to_string(&f).unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        assert_ne!(std::fs::read_to_string(&f).unwrap(), old_temp)
     }
 }
