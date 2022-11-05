@@ -16,7 +16,7 @@ pub fn get_cpu_file() -> Result<PathBuf, io::Error> {
         let sensor_type = fs::read_to_string(type_path).expect("Error");
         if sensor_type == "x86_pkg_temp\n" {
             //cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
-            cpufile = zone.unwrap().path();
+            cpufile = zone.unwrap().path().join("temp");
         }
     }
     Ok(cpufile)
@@ -109,7 +109,7 @@ mod test {
     #[test]
     fn test_cpu_file() {
         let f = super::get_cpu_file().unwrap();
-        let p_f = Path::new(&f).parent().unwrap();
+        let p_f = Path::new(&f);
         let t_f = p_f.join("type");
         let m_f = p_f.join("mode");
         assert_eq!(m_f.display().to_string(), "/sys/class/thermal/thermal_zone1/mode");
