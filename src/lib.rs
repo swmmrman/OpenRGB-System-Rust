@@ -11,11 +11,11 @@ pub fn get_cpu_file() -> Result<String, io::Error> {
     let mut cpufile = String::new();
     let zones = fs::read_dir("/sys/class/thermal/")?;
     for zone in zones {
-        let type_path = &zone.as_ref().unwrap().path().join("/type");
+        let type_path = &zone.as_ref().unwrap().path().join("type");
         let sensor_type = fs::read_to_string(type_path).expect("Error");
         if sensor_type == "x86_pkg_temp\n" {
             //cpufile = format!("{}/temp", &zone.as_ref().unwrap().path().display());
-            cpufile = type_path.join("temp").display().to_string();
+            cpufile = type_path.display().to_string();
         }
     }
     Ok(cpufile)
@@ -110,6 +110,9 @@ mod test {
         let f = super::get_cpu_file().unwrap();
         let p_f = Path::new(&f).parent().unwrap();
         let t_f = p_f.join("type");
+        let m_f = p_f.join("mode");
+        assert_eq!(m_f.display().to_string(), "/sys/class/thermal/thermal_zone1/mode");
         assert_eq!(std::fs::read_to_string(t_f).unwrap(), "x86_pkg_temp\n");
+        assert_eq!(std::fs::read_to_string(m_f).unwrap(), "enabled\n");
     }
 }
