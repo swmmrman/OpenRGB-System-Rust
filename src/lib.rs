@@ -109,7 +109,7 @@ mod test {
     #[test]
     fn test_cpu_file() {
         let f = super::get_cpu_file().unwrap();
-        let p_f = Path::new(&f);
+        let p_f = Path::new(&f).parent().unwrap();
         let t_f = p_f.join("type");
         let m_f = p_f.join("mode");
         assert_eq!(m_f.display().to_string(), "/sys/class/thermal/thermal_zone1/mode");
