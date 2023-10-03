@@ -43,9 +43,10 @@ pub fn get_color(val: f32) -> Color {
 pub fn get_key_indexs(keys: Vec<&str>, leds: &Vec<LED>) -> Vec<usize> {
     let mut indexs = Vec::new();
     let mut led_names = Vec::new();
+    //println!("{:?}", &leds);
     for led in leds {
         let led_name = led.name.to_string();
-        if led_name == "Logo" {
+        if led_name == "" {
             led_names.push(led_name);
         }
         else {
