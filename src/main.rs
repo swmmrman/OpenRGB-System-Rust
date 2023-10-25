@@ -4,7 +4,7 @@ use openrgb::{
     data::Color,
     OpenRGB,
 };
-use std::{thread, time};
+use std::{thread, time, env};
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -14,7 +14,11 @@ use openrgb_system_rust;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let target_controller = 2;
+    let args: Vec<String> = env::args().collect();
+    let mut target_controller = 2;
+    if args.len() == 2 {
+        target_controller = args[1].parse::<u32>().unwrap();
+    }
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
     ctrlc::set_handler(move || {
